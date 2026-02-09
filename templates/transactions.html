@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction History - Investment Tracker{% endblock %}
+
+{% block content %}
+<h2>Transaction History</h2>
+
+{% if transactions %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Symbol</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for txn in transactions %}
+            <tr>
+                <td>{{ txn.transaction_date }}</td>
+                <td>
+                    <span class="transaction-type {{ 'buy' if txn.transaction_type == 'BUY' else 'sell' }}">
+                        {{ txn.transaction_type }}
+                    </span>
+                </td>
+                <td class="symbol-cell">{{ txn.symbol }}</td>
+                <td>{{ txn.quantity }}</td>
+                <td>${{ "%.2f"|format(txn.price) }}</td>
+                <td>${{ "%.2f"|format(txn.quantity * txn.price) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>📜 No Transaction History</h3>
+    <p>Your transaction history will appear here as you add and remove investments.</p>
+    <a href="{{ url_for('add_investment') }}" class="btn btn-primary">Add Investment</a>
+</div>
+{% endif %}
+
+{% endblock %}

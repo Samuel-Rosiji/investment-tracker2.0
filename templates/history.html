@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ symbol }} - Price History{% endblock %}
+
+{% block content %}
+<div class="history-header">
+    <h2>{{ stock_name }}</h2>
+    <span class="symbol-badge">{{ symbol }}</span>
+</div>
+
+<div class="chart-container-large">
+    <canvas id="historyChart"></canvas>
+</div>
+
+<div class="history-actions">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
+</div>
+
+<script>
+  const histCtx = document.getElementById('historyChart').getContext('2d');
+  
+  const gradient = histCtx.createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, 'rgba(66, 133, 244, 0.2)');
+  gradient.addColorStop(1, 'rgba(66, 133, 244, 0)');
+
+  const historyChart = new Chart(histCtx, {
+      type: 'line',
+      data: {
+          labels: {{ dates|tojson }},
+          datasets: [{
+              label: 'Close Price ($)',
+              data: {{ prices|tojson }},
+              fill: true,
+              backgroundColor: gradient,
+              borderColor: '#4285F4',
+              borderWidth: 2,
+              tension: 0.3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              pointHoverBackgroundColor: '#4285F4',
+              pointHoverBorderColor: '#fff',
+              pointHoverBorderWidth: 2
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          interaction: {
+              intersect: false,
+              mode: 'index'
+          },
+          plugins: {
+              legend: { 
+                  display: true,
+                  position: 'top'
+              },
+              tooltip: {
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  padding: 12,
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 13 },
+                  callbacks: {
+                      label: function(context) {
+                          return 'Price: $' + context.parsed.y.toFixed(2);
+                      }
+                  }
+              }
+          },
+          scales: {
+              x: { 
+                  display: true,
+                  grid: { display: false },
+                  title: { 
+                      display: true, 
+                      text: 'Date',
+                      font: { size: 12 }
+                  }
+              },
+              y: { 
+                  display: true,
+                  grid: { 
+                      color: 'rgba(0, 0, 0, 0.05)'
+                  },
+                  title: { 
+                      display: true, 
+                      text: 'Price (USD)',
+                      font: { size: 12 }
+                  },
+                  ticks: {
+                      callback: function(value) {
+                          return '$' + value.toFixed(2);
+                      }
+                  }
+              }
+          }
+      }
+  });
+</script>
+
+{% endblock %}
